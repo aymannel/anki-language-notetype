@@ -1,0 +1,82 @@
+<!-- Native -> Language-2 (Back) -->
+
+<div id='backSide'>
+  <div id='backStatusBar' class='statusBar'>
+    <div id='reloadButton' onClick='reloadPage()'><span class='reloadSymbol'>&#10227;</span></div>
+    <div id='audioStatus'>&#x1F3A7;</div>
+  </div>
+
+  {{FrontSide}}
+</div>
+
+<div id='mobileAnswer'></br>{{Language-2}}</div>
+
+{{#Phonology-2}}
+  <div id='phonology'>/{{Phonology-2}}/</div>
+{{/Phonology-2}}
+
+{{Image}}
+
+<audio id='audioPlayer' src='{{Audio-2}}'></audio>
+
+
+<script>
+  function genderNumberBack(wordIndex) {
+    const words = stripHTML(`{{Language-2}}`).split('/');
+    const classificationContent = `{{Class}}`;
+    const mobileAnswerContent = `{{Language-2}}`;
+    const classificationElement = document.getElementById('classification');
+    const mobileAnswerElement = document.getElementById('mobileAnswer');
+    const nativeElement = document.getElementById('nativeElement');
+
+    const genderAndNumber = [
+      '<span style="color: #4E7BFD;">masc.</span> singular',
+      '<span style="color: #FE3473;">fem.</span> singular',
+      '<span style="color: #4E7BFD;">masc.</span> plural',
+      '<span style="color: #FE3473;">fem.</span> plural'
+    ]
+
+    if (classificationContent === 'adjective') {
+      if (words.length === 2) {
+        mobileAnswerElement.innerHTML = words[(wordIndex < 2) ? 0 : 1];
+        classificationElement.innerHTML = '(' + genderAndNumber[wordIndex] + ')';
+      }
+      else if (words.length === 4) {
+        mobileAnswerElement.innerHTML = words[wordIndex];
+        classificationElement.innerHTML = '(' + genderAndNumber[wordIndex] + ')';
+      }
+    }
+    else if (classificationContent === 'noun') {
+      if (words.length === 2) {
+        mobileAnswerElement.innerHTML = words[(wordIndex < 2) ? 0 : 1];
+        classificationElement.innerHTML = '(' + ['singular', 'plural'][(wordIndex < 2) ? 0 : 1] + ')';
+      }
+    }
+
+  }
+
+  function reloadPage() {
+    const newIndex = nextIndex();
+    genderNumberFront(newIndex);
+    genderNumberBack(newIndex);
+  }
+
+  setTimeout(() => {
+  
+    // Number & Gender
+    if (stripHTML(`{{Language-2}}`).split('/').length > 1) {
+      let storedIndex;
+      if (Persistence.isAvailable()) {
+        storedIndex = Persistence.getItem();
+        Persistence.clear();
+      }
+      genderNumberBack(storedIndex);
+    }
+
+    // Reveal Elements
+    document.getElementById('classification').style.opacity = 1;
+    document.getElementById('mobileAnswer').style.opacity = 1;
+
+  }, 0);
+
+</script>

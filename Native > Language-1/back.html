@@ -1,0 +1,89 @@
+<!-- Native -> Language-1 (Back) -->
+
+<div id='backSide'>
+  <div id='backStatusBar' class='statusBar'>
+    <div id='reloadButton' onClick='reloadPage()'>
+      <span class='reloadSymbol'>&#10227;</span>
+    </div>
+    <div id='audioStatus'>&#x1F3A7;</div>
+  </div>
+
+  {{FrontSide}}
+</div>
+
+<div id='mobileAnswer'>
+  {{Language-1}}
+</div>
+
+{{#Phonology-1}}
+  <div id='phonology'>/{{Phonology-1}}/</div>
+{{/Phonology-1}}
+
+{{Image}}
+
+<audio id='audioPlayer' src='{{Audio-1}}'></audio>
+
+
+<!-- Scripts -->
+
+<script>
+
+  function reloadPage() {
+    const newIndex = nextIndex();
+    genderNumberFront(newIndex);
+    genderNumberBack(newIndex);
+  }
+
+  function genderNumberBack(wordIndex) {
+    const words = stripHTML(`{{Language-1}}`).split('/');
+    const classificationContent = stripHTML(`{{Class}}`);
+    const mobileAnswerContent = stripHTML(`{{Language-1}}`);
+    const classificationElement = document.getElementById('classification');
+    const mobileAnswerElement = document.getElementById('mobileAnswer');
+    const nativeElement = document.getElementById('nativeElement');
+
+    const genderAndNumber = [
+      '<span style="color: #4E7BFD;">masc.</span> singular',
+      '<span style="color: #FE3473;">fem.</span> singular',
+      '<span style="color: #4E7BFD;">masc.</span> plural',
+      '<span style="color: #FE3473;">fem.</span> plural'
+    ]
+
+    if (classificationContent === 'adjective') {
+      if (words.length === 2) {
+        mobileAnswerElement.innerHTML = words[wordIndex < 2 ? 0 : 1];
+        classificationElement.innerHTML = '(' + genderAndNumber[wordIndex] + ')';
+      }
+      else if (words.length === 4) {
+        mobileAnswerElement.innerHTML = words[wordIndex];
+        classificationElement.innerHTML = '(' + genderAndNumber[wordIndex] + ')';
+      }
+    }
+
+    else if (classificationContent === 'noun') {
+      if (words.length === 2) {
+        mobileAnswerElement.innerHTML = words[wordIndex % 2];
+        classificationElement.innerHTML = '(' + ['singular', 'plural'][wordIndex % 2] + ')';
+      }
+    }
+  }
+
+  setTimeout(() => {
+
+    // Gender & Number
+    if (stripHTML(`{{Language-1}}`).split('/').length > 1) {
+      let storedIndex;
+      if (Persistence.isAvailable()) {
+        storedIndex = Persistence.getItem();
+        Persistence.clear();
+        genderNumberBack(storedIndex);
+      }
+    }
+
+    // Reveal Elements
+    document.getElementById('classification').style.opacity = 1;
+    document.getElementById('mobileAnswer').style.opacity = 1;
+
+  }, 0);
+
+</script>
