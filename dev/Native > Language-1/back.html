@@ -41,6 +41,9 @@
     const mobileAnswerElement = document.getElementById('mobileAnswer');
     const nativeElement = document.getElementById('nativeElement');
 
+    let word = words[0];
+    let agreement = classificationContent;
+
     const genderAndNumber = [
       '<span style="color: #4E7BFD;">masc.</span> singular',
       '<span style="color: #FE3473;">fem.</span> singular',
@@ -48,17 +51,28 @@
       '<span style="color: #FE3473;">fem.</span> plural'
     ]
 
-    if (classificationContent === 'adjective' || classificationContent === 'noun') {
+    if (classificationContent === 'adjective') {
       if (words.length === 2) {
-        mobileAnswerElement.innerHTML = words[wordIndex < 2 ? 0 : 1];
-        classificationElement.innerHTML = '(' + genderAndNumber[wordIndex] + ')';
+        word = words[wordIndex < 2 ? 0 : 1];
+        agreement = genderAndNumber[wordIndex];
+
       }
       else if (words.length === 4) {
-        mobileAnswerElement.innerHTML = words[wordIndex];
-        classificationElement.innerHTML = '(' + genderAndNumber[wordIndex] + ')';
+        word = words[wordIndex];
+        agreement = genderAndNumber[wordIndex];
       }
     }
 
+    else if (classificationContent === 'noun') {
+      if (words.length === 2) {
+        word = words[wordIndex % 2];
+        agreement = ['singular', 'plural'][wordIndex % 2];
+      }
+    }
+
+    mobileAnswerElement.innerHTML = word;
+    classificationElement.innerHTML = '(' + agreement + ')';
+    document.getElementById('typeans').innerHTML = compareTypedAnswer(word);
   }
 
   setTimeout(() => {

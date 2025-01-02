@@ -36,12 +36,53 @@
 
 
 <!-- Scripts -->
+<script>
+  function getTypedText() {
+    const typeAnsElement = document.getElementById('typeans');
+    const typedText = typeAnsElement.innerHTML.split(/<span id="typearrow">↓<\/span>/)[0];
+    return stripHTML(typedText);
+  }
+
+  function compareTypedAnswer(correct) {
+    const typed = getTypedText();
+    let result = '';
+    let formattedCorrect = '';
+    let correctIndex = 0;
+
+    for (let i = 0; i < typed.length; i++) {
+      if (correctIndex < correct.length && typed[i] === correct[correctIndex]) {
+        result += `<span class='typeGood'>${typed[i]}</span>`;
+        formattedCorrect += `<span class='typeGood'>${correct[correctIndex]}</span>`;
+        correctIndex++;
+      } else if (correctIndex < correct.length) {
+        result += `<span class='typeBad'>${typed[i]}</span>`;
+        formattedCorrect += `<span class='typeMissed'>${correct[correctIndex]}</span>`;
+        correctIndex++;
+      } else {
+        result += `<span class='typeBad'>${typed[i]}</span>`;
+      }
+    }
+
+    for (let i = correctIndex; i < correct.length; i++) {
+      formattedCorrect += `<span class='typeMissed'>${correct[i]}</span>`;
+    }
+
+    return result +  `</br>↓</br>` + formattedCorrect;
+  }
+
+</script>
 
 <script>
   function log(input) {
     const logger = document.getElementById('logger');
     logger.style.display = 'block';
-    logger.innerText += input + '</br>';
+    logger.innerHTML += input + '</br>';
+  }
+
+  function logRaw(input) {
+    const logger = document.getElementById('logger');
+    logger.style.display = 'block';
+    logger.innerText += input;
   }
 </script>
 
@@ -100,12 +141,17 @@
       '<span style="color: #FE3473;">fem.</span> plural'
     ]
 
-    if (classificationContent === 'adjective' || classificationContent === 'noun') {
+    if (classificationContent === 'adjective') {
       if (words.length === 2 || words.length === 4) {
         classificationElement.innerHTML = '(' + genderAndNumber[wordIndex] + ')';
       }
     }
 
+    else if (classificationContent === 'noun') {
+      if (words.length === 2) {
+        classificationElement.innerHTML = '(' + ['singular', 'plural'][wordIndex % 2] + ')';
+      }
+    }
   }
 
   setTimeout(() => {

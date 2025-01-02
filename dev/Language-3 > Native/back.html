@@ -1,12 +1,10 @@
-<!-- Language-1 -> Native (Back) -->
+<!-- Language-3 -> Native (Back) -->
 
 <div id='backSide'>
-  <div id='backStatusBar' class='statusBar'>
-    <div id='reloadButton' onClick='reloadPage()'>
-      <span class='reloadSymbol'>&#10227;</span>
+    <div id='backStatusBar' class='statusBar'>
+      <div id='reloadButton' onclick='reloadPage()'><span class='reloadSymbol'>&#10227;</span></div>
+      <div id='audioStatus'>&#x1F3A7;</div>
     </div>
-    <div id='audioStatus'>&#x1F3A7;</div>
-  </div>
 
   {{FrontSide}}
 </div>
@@ -24,25 +22,10 @@
 {{Image}}
 
 
-<!-- Scripts -->
-
 <script>
-
-  function reloadPage() {
-    const newIndex = nextIndex();
-    genderNumberFront(newIndex);
-    genderNumberBack(newIndex);
-  }
-
-  function formatContext(text) {
-    const rawField = stripHTML(text);
-    const contextRegex = /\[([^\]]+)\]/g;
-    return rawField.replace(contextRegex, '<span id="context">($1)</span>');
-  }
-
   function genderNumberBack(wordIndex) {
-    const words = stripHTML(`{{Language-1}}`).split('/');
-    const classificationContent = stripHTML(`{{Class}}`);
+    const words = stripHTML(`{{Language-3}}`).split('/');
+    const classificationContent = `{{Class}}`;
     const classificationElement = document.getElementById('classification');
     const languageElement = document.getElementById('language');
 
@@ -58,10 +41,10 @@
       '<span style="color: #4E7BFD;">masc.</span> or <span style="color: #FE3473;">fem.</span> plural'
     ]
 
-    if (classificationContent === 'adjective' || classificationContent === 'noun') {
+    if (classificationContent === 'adjective') {
       if (words.length === 2) {
-        languageElement.innerHTML = words[wordIndex % 2];
-        classificationElement.innerHTML = '(' + genderAndNumberBoth[wordIndex % 2] + ')';
+        languageElement.innerHTML = words[(wordIndex < 2) ? 0 : 1];
+        classificationElement.innerHTML = '(' + genderAndNumberBoth[(wordIndex < 2) ? 0 : 1] + ')';
       }
       else if (words.length === 4) {
         languageElement.innerHTML = words[wordIndex];
@@ -69,22 +52,39 @@
       }
     }
 
+    else if (classificationContent === 'noun') {
+      if (words.length === 2) {
+        languageElement.innerHTML = words[(wordIndex < 2) ? 0 : 1];
+        classificationElement.innerHTML = '(' + ['singular', 'plural'][(wordIndex < 2) ? 0 : 1] + ')';
+      }
+    }
+  }
+
+  function reloadPage() {
+    const newIndex = generateIndex();
+    genderNumberFront(newIndex);
+    genderNumberBack(newIndex);
   }
 
   setTimeout(() => {
 
     // Gender & Number
-    if (stripHTML(`{{Language-1}}`).split('/').length > 1) {
+    if (stripHTML(`{{Language-3}}`).split('/').length > 1) {
       let storedIndex;
       if (Persistence.isAvailable()) {
         storedIndex = Persistence.getItem();
         Persistence.clear();
-        genderNumberBack(storedIndex);
       }
+      genderNumberBack(storedIndex);
     }
 
     // Context
-    document.getElementById('native').innerHTML = formatContext(`{{Native}}`);
+    const nativeField = `{{Native}}`;
+    const contextMatch = nativeField.match(/\[([^\]]+)\]/);
+    const context = contextMatch ? contextMatch[1] : null;
+    document.getElementById('native').innerHTML = context
+      ? nativeField.replace(/\[([^\]]+)\]/, '<span id="context">($1)</span>')
+      : nativeField;
 
     // Reveal Elements
     document.getElementById('native').style.opacity = 1;

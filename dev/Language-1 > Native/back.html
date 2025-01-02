@@ -58,7 +58,7 @@
       '<span style="color: #4E7BFD;">masc.</span> or <span style="color: #FE3473;">fem.</span> plural'
     ]
 
-    if (classificationContent === 'adjective' || classificationContent === 'noun') {
+    if (classificationContent === 'adjective') {
       if (words.length === 2) {
         languageElement.innerHTML = words[wordIndex % 2];
         classificationElement.innerHTML = '(' + genderAndNumberBoth[wordIndex % 2] + ')';
@@ -69,6 +69,12 @@
       }
     }
 
+    else if (classificationContent === 'noun') {
+      if (words.length === 2) {
+        languageElement.innerHTML = words[wordIndex % 2];
+        classificationElement.innerHTML = '(' + ['singular', 'plural'][wordIndex % 2] + ')';
+      }
+    }
   }
 
   setTimeout(() => {
@@ -85,6 +91,7 @@
 
     // Context
     document.getElementById('native').innerHTML = formatContext(`{{Native}}`);
+    document.getElementById('synonyms').innerHTML = formatContext(`{{Synonyms}}`);
 
     // Reveal Elements
     document.getElementById('native').style.opacity = 1;
