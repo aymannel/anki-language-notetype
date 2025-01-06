@@ -41,9 +41,9 @@ body {
 	font-weight: bold;
 }
 
-#audio {
-	display: None;
-}
+/* #audio {
+	display: hidden;
+} */
 
 
 /* Type Box */

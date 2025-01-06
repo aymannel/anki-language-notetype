@@ -13,13 +13,13 @@
     <div id='phonology'>/{{Phonology-3}}/</div>
   {{/Phonology-3}}
 
-  {{#Class}}
-    <div id='classification'>({{Class}})</div>
-  {{/Class}}
+  {{#Classification}}
+    <div id='classification'>({{Classification}})</div>
+  {{/Classification}}
 
-  {{#Audio-3}}
-    <audio id='audioPlayer' src='{{Audio-3}}'></audio>
-  {{/Audio-3}}
+  {{#Audio-1-3}}
+    <audio id='audioPlayer' src='{{Audio-1-3}}'></audio>
+  {{/Audio-1-3}}
 
 
   <script>
@@ -49,7 +49,7 @@
 
     function genderNumberFront(wordIndex) {
       const words =  stripHTML(`{{Language-3}}`).split('/');
-      const classificationContent = `{{Class}}`;
+      const classificationContent = `{{Classification}}`;
       const classificationElement = document.getElementById('classification');
       const languageElement = document.getElementById('language');
 
@@ -78,7 +78,7 @@
       }
 
       // Audio Status
-      const isAudioPresent = `{{#Audio-3}}audio{{/Audio-3}}` !== '';
+      const isAudioPresent = `{{#Audio-1-3}}audio{{/Audio-1-3}}` !== '';
       if (isAudioPresent) document.getElementById('audioStatus').classList.add('active');
 
       // Reveal Elements

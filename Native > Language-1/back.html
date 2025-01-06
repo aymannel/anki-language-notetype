@@ -21,75 +21,98 @@
 
 {{Image}}
 
-<audio id='audioPlayer' src='{{Audio-1}}'></audio>
-
 
 <!-- Scripts -->
 
 <script>
-  function reloadPage() {
-    const newIndex = nextIndex();
-    genderNumberFront(newIndex);
-    genderNumberBack(newIndex);
+ 
+  function reloadPage(wordIndex = 'undefined') {
+
+    // Initialise Constants
+    const language = stripHTML(`{{Language-1}}`);
+    const classification = stripHTML(`{{Classification}}`);
+    const audioSources = [`{{Audio-1-1}}`, `{{Audio-1-2}}`, `{{Audio-1-3}}`, `{{Audio-1-4}}`]
+    const newIndex = wordIndex !== 'undefined' ? nextIndex() : wordIndex;
+
+    // Handle Agreement
+    handleAgreementFront(newIndex);
+    handleAgreementBack(language, classification, audioSources, newIndex);
+
+    // Reveal Elements
+    document.getElementById('classification').style.opacity = 1;
+    document.getElementById('mobileAnswer').style.opacity = 1;
+
   }
 
-  function genderNumberBack(wordIndex) {
-    const words = stripHTML(`{{Language-1}}`).split('/');
-    const classificationContent = stripHTML(`{{Class}}`);
-    const mobileAnswerContent = stripHTML(`{{Language-1}}`);
-    const classificationElement = document.getElementById('classification');
-    const mobileAnswerElement = document.getElementById('mobileAnswer');
+  function handleAgreementBack(language, classification, audioSources, wordIndex) {
+
+    const words = language.split('/');
+    const wordIndex = wordIndex ? wordIndex : 0
+
     const nativeElement = document.getElementById('nativeElement');
+    const mobileAnswerElement = document.getElementById('mobileAnswer');
+    const classificationElement = document.getElementById('classification');
 
-    let word = words[0];
-    let agreement = classificationContent;
-
-    const genderAndNumber = [
+    const classificationAgreement = [
       '<span style="color: #4E7BFD;">masc.</span> singular',
       '<span style="color: #FE3473;">fem.</span> singular',
       '<span style="color: #4E7BFD;">masc.</span> plural',
       '<span style="color: #FE3473;">fem.</span> plural'
     ]
 
-    if (classificationContent === 'adjective') {
-      if (words.length === 2) {
-        word = words[wordIndex < 2 ? 0 : 1];
-        agreement = genderAndNumber[wordIndex];
+    if (words.length === 1) {
+      const audioPlayer = new Audio(`{{Audio-1-1}}`);
+      audioPlayer.play();
+    }
 
+    if (classification === 'adjective') {
+      if (words.length === 2) {
+        const adjustedIndex = wordIndex < 2 ? 0 : 1;
+        mobileAnswerElement.innerHTML = words[adjustedIndex];
+        classificationElement.innerHTML = '(' + classificationAgreement[wordIndex] + ')';
+
+        const audioPlayer = new Audio(audioSources[adjustedIndex]);
+        audioPlayer.play();
       }
+
       else if (words.length === 4) {
-        word = words[wordIndex];
-        agreement = genderAndNumber[wordIndex];
+        mobileAnswerElement.innerHTML = words[wordIndex];
+        classificationElement.innerHTML = '(' + classificationAgreement[wordIndex] + ')';
+
+        const audioPlayer = new Audio(audioSources[wordIndex]);
+        audioPlayer.play();
       }
     }
 
-    else if (classificationContent === 'noun') {
+    else if (classification === 'noun') {
       if (words.length === 2) {
-        word = words[wordIndex % 2];
-        agreement = ['singular', 'plural'][wordIndex % 2];
+        const adjustedIndex = wordIndex % 2;
+        mobileAnswerElement.innerHTML = words[adjustedIndex];
+        classificationElement.innerHTML = '(' + ['singular', 'plural'][adjustedIndex] + ')';
+
+        const audioPlayer = new Audio(audioSources[adjustedIndex]);
+        audioPlayer.play();
+      }
+
+      else if (words.length === 4) {
+        mobileAnswerElement.innerHTML = words[wordIndex];
+        classificationElement.innerHTML = '(' + classificationAgreement[wordIndex] + ')';
+
+        const audioPlayer = new Audio(audioSources[wordIndex]);
+        audioPlayer.play();
       }
     }
 
-    mobileAnswerElement.innerHTML = word;
-    classificationElement.innerHTML = '(' + agreement + ')';
-    document.getElementById('typeans').innerHTML = compareTypedAnswer(word);
   }
 
   setTimeout(() => {
 
-    // Gender & Number
-    if (stripHTML(`{{Language-1}}`).split('/').length > 1) {
-      let storedIndex;
-      if (Persistence.isAvailable()) {
-        storedIndex = Persistence.getItem();
-        Persistence.clear();
-        genderNumberBack(storedIndex);
-      }
+    // Nominal Agreement
+    if (Persistence.isAvailable()) {
+      let wordIndex = Persistence.getItem();
+      Persistence.clear();
+      reloadPage('undefined');
     }
-
-    // Reveal Elements
-    document.getElementById('classification').style.opacity = 1;
-    document.getElementById('mobileAnswer').style.opacity = 1;
 
   }, 0);
 

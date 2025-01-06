@@ -13,13 +13,13 @@
   <div id='phonology'>/{{Phonology-1}}/</div>
 {{/Phonology-1}}
 
-{{#Class}}
-  <div id='classification'>({{Class}})</div>
-{{/Class}}
+{{#Classification}}
+  <div id='classification'>({{Classification}})</div>
+{{/Classification}}
 
-{{#Audio-1}}
-  <audio id='audioPlayer' src='{{Audio-1}}'></audio>
-{{/Audio-1}}
+{{#Audio-1-1}}
+  <audio id='audioPlayer' src='{{Audio-1-1}}'></audio>
+{{/Audio-1-1}}
 
 <div id='logger'></div>
 
@@ -42,7 +42,8 @@
 <script>
 
   function reloadPage() {
-    genderNumberFront(nextIndex())
+    const newIndex = nextIndex();
+    handleAgreementFront(newIndex);
   }
 
   function stripHTML(input) {
@@ -60,45 +61,64 @@
     } return newIndex;
   }
 
-  function genderNumberFront(wordIndex) {
+  function handleAgreementFront(wordIndex) {
     const words =  stripHTML(`{{Language-1}}`).split('/');
-    const classificationContent = stripHTML(`{{Class}}`);
+    const classificationContent = stripHTML(`{{Classification}}`);
     const classificationElement = document.getElementById('classification');
     const languageElement = document.getElementById('language');
+
+    audioSources = [`{{Audio-1-1}}`, `{{Audio-1-2}}`, `{{Audio-1-3}}`, `{{Audio-1-4}}`]
+
+    if (words.length === 1) {
+      const audioPlayer = new Audio(`{{Audio-1-1}}`);
+      audioPlayer.play();
+    }
 
     if (classificationContent === 'adjective') {
       if (words.length === 2) {
         languageElement.innerHTML = words[wordIndex % 2];
+        const audioPlayer = new Audio(audioSources[wordIndex % 2]);
+        audioPlayer.play();
       }
       else if (words.length === 4) {
         languageElement.innerHTML = words[wordIndex];
+        const audioPlayer = new Audio(audioSources[wordIndex]);
+        audioPlayer.play();
       }
     }
 
     else if (classificationContent === 'noun') {
       if (words.length === 2) {
         languageElement.innerHTML = words[wordIndex % 2];
+        const audioPlayer = new Audio(audioSources[wordIndex % 2]);
+        audioPlayer.play();
+      }
+      else if (words.length === 4) {
+        languageElement.innerHTML = words[wordIndex];
+        const audioPlayer = new Audio(audioSources[wordIndex]);
+        audioPlayer.play();
       }
     }
+
   }
 
   setTimeout(() => {
 
-    // Gender & Number
-    if ((stripHTML(`{{Language-1}}`).split('/').length > 1)) {
-      if (!document.getElementById('backSide')) {
-        let wordIndex;
-        if (Persistence.isAvailable()) {
-          wordIndex = Math.floor(Math.random() * 4);
-          Persistence.setItem(wordIndex);
-          genderNumberFront(wordIndex);
-        }
-      }
-      document.getElementById('reloadButton').classList.add('active');
+    const words = stripHTML(`{{Language-1}}`).split('/');
+    const isFront = !document.getElementById('backSide');
+
+    // Nominal Agreement
+    if (Persistence.isAvailable() && isFront) {
+      let wordIndex = Math.floor(Math.random() * 4);
+      Persistence.setItem(wordIndex);
+      handleAgreementFront(wordIndex);
     }
 
+    // Reload Status
+    if (words.length > 1) document.getElementById('reloadButton').classList.add('active');
+
     // Audio Status
-    const isAudioPresent = stripHTML(`{{#Audio-1}}audio{{/Audio-1}}`) !== '';
+    const isAudioPresent = stripHTML(`{{#Audio-1-1}}audio{{/Audio-1-1}}`) !== '';
     if (isAudioPresent) document.getElementById('audioStatus').classList.add('active');
 
     // Reveal Elements

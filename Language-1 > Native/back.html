@@ -30,8 +30,8 @@
 
   function reloadPage() {
     const newIndex = nextIndex();
-    genderNumberFront(newIndex);
-    genderNumberBack(newIndex);
+    handleAgreementFront(newIndex);
+    handleAgreementBack(newIndex);
   }
 
   function formatContext(text) {
@@ -40,32 +40,32 @@
     return rawField.replace(contextRegex, '<span id="context">($1)</span>');
   }
 
-  function genderNumberBack(wordIndex) {
+  function handleAgreementBack(wordIndex) {
     const words = stripHTML(`{{Language-1}}`).split('/');
-    const classificationContent = stripHTML(`{{Class}}`);
+    const classificationContent = stripHTML(`{{Classification}}`);
     const classificationElement = document.getElementById('classification');
     const languageElement = document.getElementById('language');
 
-    genderAndNumber = [
+    classificationAgreement = [
         '<span style="color: #4E7BFD;">masc.</span> singular',
         '<span style="color: #FE3473;">fem.</span> singular',
         '<span style="color: #4E7BFD;">masc.</span> plural',
         '<span style="color: #FE3473;">fem.</span> plural'
     ];
 
-    const genderAndNumberBoth = [
+    const classificationAgreementCombined = [
       '<span style="color: #4E7BFD;">masc.</span> or <span style="color: #FE3473;">fem.</span> singular',
       '<span style="color: #4E7BFD;">masc.</span> or <span style="color: #FE3473;">fem.</span> plural'
-    ]
+    ];
 
     if (classificationContent === 'adjective') {
       if (words.length === 2) {
         languageElement.innerHTML = words[wordIndex % 2];
-        classificationElement.innerHTML = '(' + genderAndNumberBoth[wordIndex % 2] + ')';
+        classificationElement.innerHTML = '(' + classificationAgreementCombined[wordIndex % 2] + ')';
       }
       else if (words.length === 4) {
         languageElement.innerHTML = words[wordIndex];
-        classificationElement.innerHTML = '(' + genderAndNumber[wordIndex] + ')';
+        classificationElement.innerHTML = '(' + classificationAgreement[wordIndex] + ')';
       }
     }
 
@@ -74,24 +74,25 @@
         languageElement.innerHTML = words[wordIndex % 2];
         classificationElement.innerHTML = '(' + ['singular', 'plural'][wordIndex % 2] + ')';
       }
+      else if (words.length === 4) {
+        languageElement.innerHTML = words[wordIndex];
+        classificationElement.innerHTML = '(' + classificationAgreement[wordIndex] + ')';
+      }
     }
+
   }
 
   setTimeout(() => {
 
-    // Gender & Number
-    if (stripHTML(`{{Language-1}}`).split('/').length > 1) {
-      let storedIndex;
-      if (Persistence.isAvailable()) {
-        storedIndex = Persistence.getItem();
-        Persistence.clear();
-        genderNumberBack(storedIndex);
-      }
+    // Nominal Agreement
+    if (Persistence.isAvailable()) {
+      let wordIndex = Persistence.getItem();
+      Persistence.clear();
+      handleAgreementBack(wordIndex);
     }
 
     // Context
     document.getElementById('native').innerHTML = formatContext(`{{Native}}`);
-    document.getElementById('synonyms').innerHTML = formatContext(`{{Synonyms}}`);
 
     // Reveal Elements
     document.getElementById('native').style.opacity = 1;

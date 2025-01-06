@@ -15,9 +15,9 @@
   <div id='synonyms'>or {{Synonyms}}</div>
 {{/Synonyms}}
 
-{{#Class}}
-  <div id='classification'>({{Class}})</div>
-{{/Class}}
+{{#Classification}}
+  <div id='classification'>({{Classification}})</div>
+{{/Classification}}
 
 {{#Language-2}}
   <div class='hintBox'>
@@ -36,41 +36,6 @@
 
 
 <!-- Scripts -->
-<script>
-  function getTypedText() {
-    const typeAnsElement = document.getElementById('typeans');
-    const typedText = typeAnsElement.innerHTML.split(/<span id="typearrow">↓<\/span>/)[0];
-    return stripHTML(typedText);
-  }
-
-  function compareTypedAnswer(correct) {
-    const typed = getTypedText();
-    let result = '';
-    let formattedCorrect = '';
-    let correctIndex = 0;
-
-    for (let i = 0; i < typed.length; i++) {
-      if (correctIndex < correct.length && typed[i] === correct[correctIndex]) {
-        result += `<span class='typeGood'>${typed[i]}</span>`;
-        formattedCorrect += `<span class='typeGood'>${correct[correctIndex]}</span>`;
-        correctIndex++;
-      } else if (correctIndex < correct.length) {
-        result += `<span class='typeBad'>${typed[i]}</span>`;
-        formattedCorrect += `<span class='typeMissed'>${correct[correctIndex]}</span>`;
-        correctIndex++;
-      } else {
-        result += `<span class='typeBad'>${typed[i]}</span>`;
-      }
-    }
-
-    for (let i = correctIndex; i < correct.length; i++) {
-      formattedCorrect += `<span class='typeMissed'>${correct[i]}</span>`;
-    }
-
-    return result +  `</br>↓</br>` + formattedCorrect;
-  }
-
-</script>
 
 <script>
   function log(input) {
@@ -93,7 +58,7 @@
 
 <script>
   function reloadPage() {
-    genderNumberFront(nextIndex())
+    handleAgreementFront(nextIndex())
   }
 
   function stripHTML(input) {
@@ -129,12 +94,12 @@
     } return newIndex;
   }
 
-  function genderNumberFront(wordIndex) {
+  function handleAgreementFront(wordIndex) {
     const words = stripHTML(`{{Language-1}}`).split('/');
-    const classificationContent = stripHTML(`{{Class}}`);
+    const classificationContent = stripHTML(`{{Classification}}`);
     const classificationElement = document.getElementById('classification');
 
-    const genderAndNumber = [
+    const classificationAgreement = [
       '<span style="color: #4E7BFD;">masc.</span> singular',
       '<span style="color: #FE3473;">fem.</span> singular',
       '<span style="color: #4E7BFD;">masc.</span> plural',
@@ -142,8 +107,11 @@
     ]
 
     if (classificationContent === 'adjective') {
-      if (words.length === 2 || words.length === 4) {
-        classificationElement.innerHTML = '(' + genderAndNumber[wordIndex] + ')';
+      if (words.length === 2) {
+        classificationElement.innerHTML = '(' + classificationAgreement[wordIndex] + ')';
+      }
+      else if (words.length === 4) {
+        classificationElement.innerHTML = '(' + classificationAgreement[wordIndex] + ')';
       }
     }
 
@@ -151,26 +119,31 @@
       if (words.length === 2) {
         classificationElement.innerHTML = '(' + ['singular', 'plural'][wordIndex % 2] + ')';
       }
+      else if (words.length === 4) {
+        classificationElement.innerHTML = '(' + classificationAgreement[wordIndex] + ')';
+      }
     }
+
+
   }
 
   setTimeout(() => {
 
-    // Gender & Number
-    if (stripHTML(`{{Language-1}}`).split('/').length > 1) {
-      if (!document.getElementById('backSide')) {
-        let wordIndex = 0;
-        if (Persistence.isAvailable()) {
-          wordIndex = Math.floor(Math.random() * 4);
-          Persistence.setItem(wordIndex);
-        }
-        genderNumberFront(wordIndex);
-      }
-      document.getElementById('reloadButton').classList.add('active');
-    };
+    const words = stripHTML(`{{Language-1}}`).split('/');
+    const isFront = !document.getElementById('backSide');
+    const isAudioPresent = stripHTML(`{{#Audio-1-1}}audio{{/Audio-1-1}}`) !== '';
+
+    // Nominal Agreement
+    if (Persistence.isAvailable() && isFront) {
+      let wordIndex = Math.floor(Math.random() * 4);
+      Persistence.setItem(wordIndex);
+      handleAgreementFront(wordIndex);
+    }
+
+    // Reload Status
+    if (words.length > 1) document.getElementById('reloadButton').classList.add('active');
 
     // Audio Status
-    const isAudioPresent = stripHTML(`{{#Audio-1}}audio{{/Audio-1}}`) !== '';
     if (isAudioPresent) document.getElementById('audioStatus').classList.add('active');
 
     // Context
