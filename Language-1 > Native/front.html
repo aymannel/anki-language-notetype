@@ -17,10 +17,6 @@
   <div id='classification'>({{Classification}})</div>
 {{/Classification}}
 
-{{#Audio-1-1}}
-  <audio id='audioPlayer' src='{{Audio-1-1}}'></audio>
-{{/Audio-1-1}}
-
 <div id='logger'></div>
 
 
@@ -67,10 +63,10 @@
     const classificationElement = document.getElementById('classification');
     const languageElement = document.getElementById('language');
 
-    audioSources = [`{{Audio-1-1}}`, `{{Audio-1-2}}`, `{{Audio-1-3}}`, `{{Audio-1-4}}`]
+    audioSources = `{{Audio-1}}`.split();
 
     if (words.length === 1) {
-      const audioPlayer = new Audio(`{{Audio-1-1}}`);
+      const audioPlayer = new Audio(audioSources[0]);
       audioPlayer.play();
     }
 
