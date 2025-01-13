@@ -37,9 +37,40 @@
 
 <script>
 
-  function reloadPage() {
-    const newIndex = nextIndex();
-    handleAgreementFront(newIndex);
+  setTimeout(() => {
+
+    // Nominal Agreement
+    if (Persistence.isAvailable() && !document.getElementById('backSide')) {
+      let wordIndex = Math.floor(Math.random() * 4);
+      Persistence.setItem(wordIndex);
+      reloadPage(wordIndex);
+    }
+
+    // Reload Status
+    const words = stripHTML(`{{Language-1}}`).split('/');
+    if (words.length > 1) document.getElementById('reloadButton').classList.add('active');
+
+    // Audio Status
+    const isAudioPresent = stripHTML(`{{#Audio-1}}audio{{/Audio-1}}`) !== '';
+    if (isAudioPresent) document.getElementById('audioStatus').classList.add('active');
+
+    // Reveal Elements
+    document.getElementById('language').style.opacity = 1;
+    document.getElementById('classification').style.opacity = 1;
+
+  }, 0);
+
+  function reloadPage(wordIndex) {
+
+    // Initialise Constants
+    const newIndex = wordIndex ?? nextIndex();
+    const language = stripHTML(`{{Language-1}}`);
+    const classification = stripHTML(`{{Classification}}`);
+    const audioSources = stripHTML(`{{Audio-1}}`).split(' ');
+
+    // Handle Agreement
+    handleAgreementFront(language, classification, audioSources, newIndex);
+
   }
 
   function stripHTML(input) {
@@ -57,69 +88,45 @@
     } return newIndex;
   }
 
-  function handleAgreementFront(wordIndex) {
-    const words =  stripHTML(`{{Language-1}}`).split('/');
-    const classificationContent = stripHTML(`{{Classification}}`);
-    const classificationElement = document.getElementById('classification');
-    const languageElement = document.getElementById('language');
+  function handleAgreementFront(language, classification, audioSources, storedIndex) {
 
-    audioSources = `{{Audio-1}}`.split();
+    const words =  language.split('/');
+    const wordIndex = storedIndex ?? 0;
+
+    const audioPlayer = new Audio();
+    const languageElement = document.getElementById('language');
+    const classificationElement = document.getElementById('classification');
 
     if (words.length === 1) {
-      const audioPlayer = new Audio(audioSources[0]);
+      audioPlayer.src = audiooSources != null ? audioSources[0] : null;
+    }
+
+    if (classification === 'adjective') {
+      if (words.length === 2) {
+        languageElement.innerHTML = words[wordIndex % 2];
+        audioPlayer.src = audioSources != null ? audioSources[wordIndex % 2] : null;
+      }
+      else if (words.length === 4) {
+        languageElement.innerHTML = words[wordIndex];
+        audioPlayer.src = audioSources != null ? audioSources[wordIndex] : null;
+      }
+    }
+
+    else if (classification === 'noun') {
+      if (words.length === 2) {
+        languageElement.innerHTML = words[wordIndex % 2];
+        audioPlayer.src = audioSources != null ? audioSources[wordIndex % 2] : null;
+      }
+      else if (words.length === 4) {
+        languageElement.innerHTML = words[wordIndex];
+        audioPlayer.src = audioSources != null ? audioSources[wordIndex] : null;
+      }
+    }
+
+    if (audioPlayer.src != null) {
       audioPlayer.play();
-    }
-
-    if (classificationContent === 'adjective') {
-      if (words.length === 2) {
-        languageElement.innerHTML = words[wordIndex % 2];
-        const audioPlayer = new Audio(audioSources[wordIndex % 2]);
-        audioPlayer.play();
-      }
-      else if (words.length === 4) {
-        languageElement.innerHTML = words[wordIndex];
-        const audioPlayer = new Audio(audioSources[wordIndex]);
-        audioPlayer.play();
-      }
-    }
-
-    else if (classificationContent === 'noun') {
-      if (words.length === 2) {
-        languageElement.innerHTML = words[wordIndex % 2];
-        const audioPlayer = new Audio(audioSources[wordIndex % 2]);
-        audioPlayer.play();
-      }
-      else if (words.length === 4) {
-        languageElement.innerHTML = words[wordIndex];
-        const audioPlayer = new Audio(audioSources[wordIndex]);
-        audioPlayer.play();
-      }
     }
 
   }
 
-  setTimeout(() => {
-
-    const words = stripHTML(`{{Language-1}}`).split('/');
-    const isFront = !document.getElementById('backSide');
-
-    // Nominal Agreement
-    if (Persistence.isAvailable() && isFront) {
-      let wordIndex = Math.floor(Math.random() * 4);
-      Persistence.setItem(wordIndex);
-      handleAgreementFront(wordIndex);
-    }
-
-    // Reload Status
-    if (words.length > 1) document.getElementById('reloadButton').classList.add('active');
-
-    // Audio Status
-    const isAudioPresent = stripHTML(`{{#Audio-1-1}}audio{{/Audio-1-1}}`) !== '';
-    if (isAudioPresent) document.getElementById('audioStatus').classList.add('active');
-
-    // Reveal Elements
-    document.getElementById('language').style.opacity = 1;
-    document.getElementById('classification').style.opacity = 1;
-
-  }, 0);
 </script>

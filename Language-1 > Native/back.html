@@ -28,67 +28,12 @@
 
 <script>
 
-  function reloadPage() {
-    const newIndex = nextIndex();
-    handleAgreementFront(newIndex);
-    handleAgreementBack(newIndex);
-  }
-
-  function formatContext(text) {
-    const rawField = stripHTML(text);
-    const contextRegex = /\[([^\]]+)\]/g;
-    return rawField.replace(contextRegex, '<span id="context">($1)</span>');
-  }
-
-  function handleAgreementBack(wordIndex) {
-    const words = stripHTML(`{{Language-1}}`).split('/');
-    const classificationContent = stripHTML(`{{Classification}}`);
-    const classificationElement = document.getElementById('classification');
-    const languageElement = document.getElementById('language');
-
-    classificationAgreement = [
-        '<span style="color: #4E7BFD;">masc.</span> singular',
-        '<span style="color: #FE3473;">fem.</span> singular',
-        '<span style="color: #4E7BFD;">masc.</span> plural',
-        '<span style="color: #FE3473;">fem.</span> plural'
-    ];
-
-    const classificationAgreementCombined = [
-      '<span style="color: #4E7BFD;">masc.</span> or <span style="color: #FE3473;">fem.</span> singular',
-      '<span style="color: #4E7BFD;">masc.</span> or <span style="color: #FE3473;">fem.</span> plural'
-    ];
-
-    if (classificationContent === 'adjective') {
-      if (words.length === 2) {
-        languageElement.innerHTML = words[wordIndex % 2];
-        classificationElement.innerHTML = '(' + classificationAgreementCombined[wordIndex % 2] + ')';
-      }
-      else if (words.length === 4) {
-        languageElement.innerHTML = words[wordIndex];
-        classificationElement.innerHTML = '(' + classificationAgreement[wordIndex] + ')';
-      }
-    }
-
-    else if (classificationContent === 'noun') {
-      if (words.length === 2) {
-        languageElement.innerHTML = words[wordIndex % 2];
-        classificationElement.innerHTML = '(' + ['singular', 'plural'][wordIndex % 2] + ')';
-      }
-      else if (words.length === 4) {
-        languageElement.innerHTML = words[wordIndex];
-        classificationElement.innerHTML = '(' + classificationAgreement[wordIndex] + ')';
-      }
-    }
-
-  }
-
   setTimeout(() => {
 
     // Nominal Agreement
     if (Persistence.isAvailable()) {
-      let wordIndex = Persistence.getItem();
+      reloadPage(Persistence.getItem());
       Persistence.clear();
-      handleAgreementBack(wordIndex);
     }
 
     // Context
@@ -98,4 +43,68 @@
     document.getElementById('native').style.opacity = 1;
 
   }, 0);
+
+  function reloadPage(wordIndex) {
+
+    // Initialise Constants
+    const newIndex = wordIndex ?? nextIndex();
+    const language = stripHTML(`{{Language-1}}`);
+    const classification = stripHTML(`{{Classification}}`);
+    const audioSources = wordIndex != null ? null : stripHTML(`{{Audio-1}}`).split(' ');
+
+    // Handle Agreement
+    handleAgreementFront(language, classification, audioSources, newIndex);
+    handleAgreementBack(language, classification, newIndex);
+
+  }
+
+  function formatContext(text) {
+    const contextRegex = /\[([^\]]+)\]/g;
+    return stripHTML(text).replace(contextRegex, '<span id="context">($1)</span>');
+  }
+
+  // function handleAgreementBack(wordIndex) {
+  function handleAgreementBack(language, classification, storedIndex) {
+
+    const words = language.split('/');
+    const wordIndex = storedIndex ?? 0;
+    const languageElement = document.getElementById('language');
+    const classificationElement = document.getElementById('classification');
+
+    agreementPhrases = [
+        '<span style="color: #4E7BFD;">masc.</span> singular',
+        '<span style="color: #FE3473;">fem.</span> singular',
+        '<span style="color: #4E7BFD;">masc.</span> plural',
+        '<span style="color: #FE3473;">fem.</span> plural'
+    ];
+
+    const agreementPhrasesCombined = [
+      '<span style="color: #4E7BFD;">masc.</span> or <span style="color: #FE3473;">fem.</span> singular',
+      '<span style="color: #4E7BFD;">masc.</span> or <span style="color: #FE3473;">fem.</span> plural'
+    ];
+
+    if (classification === 'adjective') {
+      if (words.length === 2) {
+        languageElement.innerHTML = words[wordIndex % 2];
+        classificationElement.innerHTML = '(' + agreementPhrasesCombined[wordIndex % 2] + ')';
+      }
+      else if (words.length === 4) {
+        languageElement.innerHTML = words[wordIndex];
+        classificationElement.innerHTML = '(' + agreementPhrases[wordIndex] + ')';
+      }
+    }
+
+    else if (classification === 'noun') {
+      if (words.length === 2) {
+        languageElement.innerHTML = words[wordIndex % 2];
+        classificationElement.innerHTML = '(' + ['singular', 'plural'][wordIndex % 2] + ')';
+      }
+      else if (words.length === 4) {
+        languageElement.innerHTML = words[wordIndex];
+        classificationElement.innerHTML = '(' + agreementPhrases[wordIndex] + ')';
+      }
+    }
+
+  }
+
 </script>

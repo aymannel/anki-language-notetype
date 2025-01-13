@@ -17,9 +17,9 @@
     <div id='classification'>({{Classification}})</div>
   {{/Classification}}
 
-  {{#Audio-1-3}}
-    <audio id='audioPlayer' src='{{Audio-1-3}}'></audio>
-  {{/Audio-1-3}}
+  {{#Audio-3}}
+    <audio id='audioPlayer' src='{{Audio-3}}'></audio>
+  {{/Audio-3}}
 
 
   <script>
@@ -78,7 +78,7 @@
       }
 
       // Audio Status
-      const isAudioPresent = `{{#Audio-1-3}}audio{{/Audio-1-3}}` !== '';
+      const isAudioPresent = `{{#Audio-3}}audio{{/Audio-3}}` !== '';
       if (isAudioPresent) document.getElementById('audioStatus').classList.add('active');
 
       // Reveal Elements

@@ -43,12 +43,6 @@
     logger.style.display = 'block';
     logger.innerHTML += input + '</br>';
   }
-
-  function logRaw(input) {
-    const logger = document.getElementById('logger');
-    logger.style.display = 'block';
-    logger.innerText += input;
-  }
 </script>
 
 <script>
@@ -57,8 +51,78 @@
 </script>
 
 <script>
-  function reloadPage() {
-    handleAgreementFront(nextIndex())
+
+  setTimeout(() => {
+
+    // Nominal Agreement
+    if (Persistence.isAvailable() && !document.getElementById('backSide')) {
+      Persistence.setItem(Math.floor(Math.random() * 4));
+      reloadPage(Persistence.getItem());
+    }
+
+    // Context
+    document.getElementById('native').innerHTML = formatContext(`{{Native}}`);
+
+    // Reload Status
+    if (stripHTML(`{{Language-1}}`).split('/').length > 1) document.getElementById('reloadButton').classList.add('active');
+
+    // Audio Status
+    if (stripHTML(`{{#Audio-1}}audio{{/Audio-1}}`) !== '') document.getElementById('audioStatus').classList.add('active');
+
+    // Hint
+    if ( document.getElementById('hintText') !== null ) {
+      hint = generateHint([stripHTML(`{{Language-1}}`), stripHTML(`{{Language-2}}`), stripHTML(`{{Language-3}}`)]); 
+      document.getElementById('hintText').innerHTML = hint + '...';
+    }
+
+    // Reveal elements
+    document.getElementById('native').style.opacity = 1;
+    document.getElementById('classification').style.opacity = 1;
+
+  }, 0);
+
+  function reloadPage(wordIndex) {
+    const newIndex = wordIndex ?? nextIndex();
+    handleAgreementFront(newIndex);
+  }
+
+  function handleAgreementFront(storedIndex) {
+
+    const wordIndex = storedIndex ?? 0;
+    const words = stripHTML(`{{Language-1}}`).split('/');
+    const classification = stripHTML(`{{Classification}}`);
+    const audioSources = stripHTML(`{{Audio-1}}`).split(' ');
+    const classificationElement = document.getElementById('classification');
+
+    const agreementPhrases = [
+      '<span style="color: #4E7BFD;">masc.</span> singular',
+      '<span style="color: #FE3473;">fem.</span> singular',
+      '<span style="color: #4E7BFD;">masc.</span> plural',
+      '<span style="color: #FE3473;">fem.</span> plural'
+    ]
+
+    if (classification === 'adjective') {
+      if (words.length === 2) {
+        classificationElement.innerHTML = '(' + agreementPhrases[wordIndex] + ')';
+      }
+      else if (words.length === 4) {
+        classificationElement.innerHTML = '(' + agreementPhrases[wordIndex] + ')';
+      }
+    }
+
+    else if (classification === 'noun') {
+      if (words.length === 2) {
+        classificationElement.innerHTML = '(' + ['singular', 'plural'][wordIndex % 2] + ')';
+      }
+      else if (words.length === 4) {
+        classificationElement.innerHTML = '(' + agreementPhrases[wordIndex] + ')';
+      }
+    }
+  }
+
+  function formatContext(text) {
+    const contextRegex = /\[([^\]]+)\]/g;
+    return stripHTML(text).replace(contextRegex, '<span id="context">($1)</span>');
   }
 
   function stripHTML(input) {
@@ -68,10 +132,13 @@
     return textContent.trim();
   }
 
-  function formatContext(text) {
-    const rawField = stripHTML(text);
-    const contextRegex = /\[([^\]]+)\]/g;
-    return rawField.replace(contextRegex, '<span id="context">($1)</span>');
+  function nextIndex() {
+    let newIndex;
+    if (Persistence.isAvailable()) {
+      newIndex = (Persistence.getItem() + 1) % 4;
+      Persistence.setItem(newIndex)
+    }
+    return newIndex;
   }
 
   function generateHint(comparables) {
@@ -86,78 +153,4 @@
     } return base.substring(0, base.length)
   }
 
-  function nextIndex() {
-    let newIndex;
-    if (Persistence.isAvailable()) {
-      newIndex = (Persistence.getItem() + 1) % 4;
-      Persistence.setItem(newIndex)
-    } return newIndex;
-  }
-
-  function handleAgreementFront(wordIndex) {
-    const words = stripHTML(`{{Language-1}}`).split('/');
-    const classificationContent = stripHTML(`{{Classification}}`);
-    const classificationElement = document.getElementById('classification');
-
-    const classificationAgreement = [
-      '<span style="color: #4E7BFD;">masc.</span> singular',
-      '<span style="color: #FE3473;">fem.</span> singular',
-      '<span style="color: #4E7BFD;">masc.</span> plural',
-      '<span style="color: #FE3473;">fem.</span> plural'
-    ]
-
-    if (classificationContent === 'adjective') {
-      if (words.length === 2) {
-        classificationElement.innerHTML = '(' + classificationAgreement[wordIndex] + ')';
-      }
-      else if (words.length === 4) {
-        classificationElement.innerHTML = '(' + classificationAgreement[wordIndex] + ')';
-      }
-    }
-
-    else if (classificationContent === 'noun') {
-      if (words.length === 2) {
-        classificationElement.innerHTML = '(' + ['singular', 'plural'][wordIndex % 2] + ')';
-      }
-      else if (words.length === 4) {
-        classificationElement.innerHTML = '(' + classificationAgreement[wordIndex] + ')';
-      }
-    }
-
-
-  }
-
-  setTimeout(() => {
-
-    const words = stripHTML(`{{Language-1}}`).split('/');
-    const isFront = !document.getElementById('backSide');
-    const isAudioPresent = stripHTML(`{{#Audio-1-1}}audio{{/Audio-1-1}}`) !== '';
-
-    // Nominal Agreement
-    if (Persistence.isAvailable() && isFront) {
-      let wordIndex = Math.floor(Math.random() * 4);
-      Persistence.setItem(wordIndex);
-      handleAgreementFront(wordIndex);
-    }
-
-    // Reload Status
-    if (words.length > 1) document.getElementById('reloadButton').classList.add('active');
-
-    // Audio Status
-    if (isAudioPresent) document.getElementById('audioStatus').classList.add('active');
-
-    // Context
-    document.getElementById('native').innerHTML = formatContext(`{{Native}}`);
-
-    // Hint
-    if ( document.getElementById('hintText') !== null ) {
-      hint = generateHint([stripHTML(`{{Language-1}}`), stripHTML(`{{Language-2}}`), stripHTML(`{{Language-3}}`)]); 
-      document.getElementById('hintText').innerHTML = hint + '...';
-    }
-
-    // Reveal elements
-    document.getElementById('native').style.opacity = 1;
-    document.getElementById('classification').style.opacity = 1;
-
-  }, 0);
 </script>
