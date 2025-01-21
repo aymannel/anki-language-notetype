@@ -1,10 +1,13 @@
 <!-- Language-1 -> Native (Front) -->
 
 <div id='frontStatusBar' class='statusBar'>
-  <div id='reloadButton' onclick='reloadPage()'>
-    <span class='reloadSymbol'>&#10227;</span>
+  <div id='reloadButton' onclick=loadPage()>
+    <span id='reloadSymbol'>&#10227;</span>
   </div>
-  <div id='audioStatus'>&#x1F3A7;</div>
+
+  <div id='audioStatus'>
+    <span id='audioSymbol'>&#9654;</span>
+  </div>
 </div>
 
 <div id='language'>{{Language-1}}</div>
@@ -20,57 +23,114 @@
 <div id='logger'></div>
 
 
-<!-- Scripts -->
-
-<script>
-  function log(input) {
-    const logger = document.getElementById('logger');
-    logger.style.display = 'block';
-    logger.innerHTML += input + '</br>';
-  }
-</script>
-
 <script>
   // v1.1.8 - https://github.com/SimonLammer/anki-persistence/blob/584396fea9dea0921011671a47a0fdda19265e62/script.js
   if(void 0===window.Persistence){var e="github.com/SimonLammer/anki-persistence/",t="_default";if(window.Persistence_sessionStorage=function(){var i=!1;try{"object"==typeof window.sessionStorage&&(i=!0,this.clear=function(){for(var t=0;t<sessionStorage.length;t++){var i=sessionStorage.key(t);0==i.indexOf(e)&&(sessionStorage.removeItem(i),t--)}},this.setItem=function(i,n){void 0==n&&(n=i,i=t),sessionStorage.setItem(e+i,JSON.stringify(n))},this.getItem=function(i){return void 0==i&&(i=t),JSON.parse(sessionStorage.getItem(e+i))},this.removeItem=function(i){void 0==i&&(i=t),sessionStorage.removeItem(e+i)},this.getAllKeys=function(){for(var t=[],i=Object.keys(sessionStorage),n=0;n<i.length;n++){var s=i[n];0==s.indexOf(e)&&t.push(s.substring(e.length,s.length))}return t.sort()})}catch(n){}this.isAvailable=function(){return i}},window.Persistence_windowKey=function(i){var n=window[i],s=!1;"object"==typeof n&&(s=!0,this.clear=function(){n[e]={}},this.setItem=function(i,s){void 0==s&&(s=i,i=t),n[e][i]=s},this.getItem=function(i){return void 0==i&&(i=t),void 0==n[e][i]?null:n[e][i]},this.removeItem=function(i){void 0==i&&(i=t),delete n[e][i]},this.getAllKeys=function(){return Object.keys(n[e])},void 0==n[e]&&this.clear()),this.isAvailable=function(){return s}},window.Persistence=new Persistence_sessionStorage,Persistence.isAvailable()||(window.Persistence=new Persistence_windowKey("py")),!Persistence.isAvailable()){var i=window.location.toString().indexOf("title"),n=window.location.toString().indexOf("main",i);i>0&&n>0&&n-i<10&&(window.Persistence=new Persistence_windowKey("qt"))}}
 </script>
 
-<script>
 
+<script>
   setTimeout(() => {
 
     // Nominal Agreement
     if (Persistence.isAvailable() && !document.getElementById('backSide')) {
       let wordIndex = Math.floor(Math.random() * 4);
-      Persistence.setItem(wordIndex);
-      reloadPage(wordIndex);
+      Persistence.setItem('wordIndex', wordIndex);
+      loadPage(wordIndex);
     }
 
-    // Reload Status
-    const words = stripHTML(`{{Language-1}}`).split('/');
-    if (words.length > 1) document.getElementById('reloadButton').classList.add('active');
-
-    // Audio Status
-    const isAudioPresent = stripHTML(`{{#Audio-1}}audio{{/Audio-1}}`) !== '';
-    if (isAudioPresent) document.getElementById('audioStatus').classList.add('active');
+    // Set Properties
+    setAudioStatus()
+    setReloadStatus();
 
     // Reveal Elements
     document.getElementById('language').style.opacity = 1;
     document.getElementById('classification').style.opacity = 1;
+    document.getElementById('audioStatus').style.pointerEvents = 'auto';
 
   }, 0);
 
-  function reloadPage(wordIndex) {
 
-    // Initialise Constants
+  // Set Properties
+  // --------------
+
+  function setContext() {
+    const raw = stripHTML(`{{Native}}`);
+    const contextRegex = /\[([^\]]+)\]/g;
+    const formatedText = raw.replace(contextRegex, '<span id="context">($1)</span>');
+    document.getElementById('native').innerHTML = formatedText;
+  }
+
+  function setAudioStatus() {
+    const words = stripHTML(`{{Language-1}}`).split('/');
+    const audioSources = stripHTML(`{{Audio-1}}`).split(' ');
+    if (words.length === audioSources.length && words.length != null) {
+      document.getElementById('audioStatus').classList.add('active');
+    }
+  }
+
+  function setReloadStatus() {
+    if (stripHTML(`{{Language-1}}`).split('/').length > 1) {
+      document.getElementById('reloadButton').classList.add('active');
+    }
+  }
+
+
+  // Handle Nominal Agreement
+  // ------------------------
+
+  function loadPage(wordIndex) {
     const newIndex = wordIndex ?? nextIndex();
+    handleAgreementFront(newIndex);
+    playAudio();
+  }
+
+  function handleAgreementFront(storedIndex) {
     const language = stripHTML(`{{Language-1}}`);
     const classification = stripHTML(`{{Classification}}`);
     const audioSources = stripHTML(`{{Audio-1}}`).split(' ');
 
-    // Handle Agreement
-    handleAgreementFront(language, classification, audioSources, newIndex);
+    const words =  language.split('/');
+    const wordIndex = storedIndex ?? 0;
 
+    const languageElement = document.getElementById('language');
+    const classificationElement = document.getElementById('classification');
+
+    if (words.length === 1) {
+      setAudio(audioSources[0]);
+    }
+
+    if (classification === 'adjective') {
+      if (words.length === 2) {
+        languageElement.innerHTML = words[wordIndex % 2];
+        setAudio(audioSources[wordIndex % 2]);
+      }
+      else if (words.length === 4) {
+        languageElement.innerHTML = words[wordIndex];
+        setAudio(audioSources[wordIndex]);
+      }
+    }
+
+    else if (classification === 'noun') {
+      if (words.length === 2) {
+        languageElement.innerHTML = words[wordIndex % 2];
+        setAudio(audioSources[wordIndex % 2]);
+      }
+      else if (words.length === 4) {
+        languageElement.innerHTML = words[wordIndex];
+        setAudio(audioSources[wordIndex]);
+      }
+    }
+  }
+
+
+  // Helper Functions
+  // ----------------
+
+  function log(input) {
+    const logger = document.getElementById('logger');
+    logger.style.display = 'block';
+    logger.innerHTML += input + '</br>';
   }
 
   function stripHTML(input) {
@@ -83,50 +143,27 @@
   function nextIndex() {
     let newIndex;
     if (Persistence.isAvailable()) {
-      newIndex = (Persistence.getItem() + 1) % 4;
-      Persistence.setItem(newIndex)
+      newIndex = (Persistence.getItem('wordIndex') + 1) % 4;
+      Persistence.setItem('wordIndex', newIndex)
     } return newIndex;
   }
 
-  function handleAgreementFront(language, classification, audioSources, storedIndex) {
+  function setAudio(audioSource) {
+    if (Persistence.isAvailable()) {
+      Persistence.setItem('audioSource', audioSource ?? '');
+    }
+  }
 
-    const words =  language.split('/');
-    const wordIndex = storedIndex ?? 0;
+  function getAudio() {
+    if (Persistence.isAvailable()) {
+      return Persistence.getItem('audioSource');
+    }
+  }
 
+  function playAudio() {
     const audioPlayer = new Audio();
-    const languageElement = document.getElementById('language');
-    const classificationElement = document.getElementById('classification');
-
-    if (words.length === 1) {
-      audioPlayer.src = audiooSources != null ? audioSources[0] : null;
-    }
-
-    if (classification === 'adjective') {
-      if (words.length === 2) {
-        languageElement.innerHTML = words[wordIndex % 2];
-        audioPlayer.src = audioSources != null ? audioSources[wordIndex % 2] : null;
-      }
-      else if (words.length === 4) {
-        languageElement.innerHTML = words[wordIndex];
-        audioPlayer.src = audioSources != null ? audioSources[wordIndex] : null;
-      }
-    }
-
-    else if (classification === 'noun') {
-      if (words.length === 2) {
-        languageElement.innerHTML = words[wordIndex % 2];
-        audioPlayer.src = audioSources != null ? audioSources[wordIndex % 2] : null;
-      }
-      else if (words.length === 4) {
-        languageElement.innerHTML = words[wordIndex];
-        audioPlayer.src = audioSources != null ? audioSources[wordIndex] : null;
-      }
-    }
-
-    if (audioPlayer.src != null) {
-      audioPlayer.play();
-    }
-
+    audioPlayer.src = getAudio();
+    audioPlayer.play();
   }
 
 </script>

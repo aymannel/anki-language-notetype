@@ -1,10 +1,15 @@
 <!-- Language-3 -> Native (Back) -->
 
 <div id='backSide'>
-    <div id='backStatusBar' class='statusBar'>
-      <div id='reloadButton' onclick='reloadPage()'><span class='reloadSymbol'>&#10227;</span></div>
-      <div id='audioStatus'>&#x1F3A7;</div>
+  <div id='backStatusBar' class='statusBar'>
+    <div id='reloadButton' onClick=loadPage()>
+      <span id='reloadSymbol'>&#10227;</span>
     </div>
+
+    <div id='audioStatus' onclick=playAudio()>
+      <span id='audioSymbol'>&#9654;</span>
+    </div>
+  </div>
 
   {{FrontSide}}
 </div>
@@ -23,71 +28,76 @@
 
 
 <script>
-  function genderNumberBack(wordIndex) {
-    const words = stripHTML(`{{Language-3}}`).split('/');
-    const classificationContent = `{{Classification}}`;
-    const classificationElement = document.getElementById('classification');
-    const languageElement = document.getElementById('language');
+  setTimeout(() => {
 
-    genderAndNumber = [
+    // Handle Nominal Agreement
+    if (Persistence.isAvailable()) {
+      loadPage(Persistence.getItem('wordIndex'));
+      // Persistence.removeItem('wordIndex');
+    }
+
+    // Set Properties
+    setContext();
+
+    // Reveal Elements
+    document.getElementById('native').style.opacity = 1;
+
+  }, 0);
+
+
+  // Handle Nominal Agreement
+  // ------------------------
+
+  function loadPage(wordIndex) {
+    const newIndex = wordIndex ?? nextIndex();
+    handleAgreementFront(newIndex);
+    handleAgreementBack(newIndex);
+    if (wordIndex == null) playAudio();
+  }
+
+  function handleAgreementBack(storedIndex) {
+    const language = stripHTML(`{{Language-3}}`);
+    const classification = stripHTML(`{{Classification}}`);
+
+    const words = language.split('/');
+    const wordIndex = storedIndex ?? 0;
+
+    const languageElement = document.getElementById('language');
+    const classificationElement = document.getElementById('classification');
+
+    agreementPhrases = [
         '<span style="color: #4E7BFD;">masc.</span> singular',
         '<span style="color: #FE3473;">fem.</span> singular',
         '<span style="color: #4E7BFD;">masc.</span> plural',
         '<span style="color: #FE3473;">fem.</span> plural'
     ];
 
-    const genderAndNumberBoth = [
+    const agreementPhrasesCombined = [
       '<span style="color: #4E7BFD;">masc.</span> or <span style="color: #FE3473;">fem.</span> singular',
       '<span style="color: #4E7BFD;">masc.</span> or <span style="color: #FE3473;">fem.</span> plural'
-    ]
+    ];
 
-    if (classificationContent === 'adjective') {
+    if (classification === 'adjective') {
       if (words.length === 2) {
-        languageElement.innerHTML = words[(wordIndex < 2) ? 0 : 1];
-        classificationElement.innerHTML = '(' + genderAndNumberBoth[(wordIndex < 2) ? 0 : 1] + ')';
+        languageElement.innerHTML = words[wordIndex % 2];
+        classificationElement.innerHTML = '(' + agreementPhrasesCombined[wordIndex % 2] + ')';
       }
       else if (words.length === 4) {
         languageElement.innerHTML = words[wordIndex];
-        classificationElement.innerHTML = '(' + genderAndNumber[wordIndex] + ')';
+        classificationElement.innerHTML = '(' + agreementPhrases[wordIndex] + ')';
       }
     }
 
-    else if (classificationContent === 'noun') {
+    else if (classification === 'noun') {
       if (words.length === 2) {
-        languageElement.innerHTML = words[(wordIndex < 2) ? 0 : 1];
-        classificationElement.innerHTML = '(' + ['singular', 'plural'][(wordIndex < 2) ? 0 : 1] + ')';
+        languageElement.innerHTML = words[wordIndex % 2];
+        classificationElement.innerHTML = '(' + ['singular', 'plural'][wordIndex % 2] + ')';
+      }
+      else if (words.length === 4) {
+        languageElement.innerHTML = words[wordIndex];
+        classificationElement.innerHTML = '(' + agreementPhrases[wordIndex] + ')';
       }
     }
   }
 
-  function reloadPage() {
-    const newIndex = generateIndex();
-    genderNumberFront(newIndex);
-    genderNumberBack(newIndex);
-  }
-
-  setTimeout(() => {
-
-    // Gender & Number
-    if (stripHTML(`{{Language-3}}`).split('/').length > 1) {
-      let storedIndex;
-      if (Persistence.isAvailable()) {
-        storedIndex = Persistence.getItem();
-        Persistence.clear();
-      }
-      genderNumberBack(storedIndex);
-    }
-
-    // Context
-    const nativeField = `{{Native}}`;
-    const contextMatch = nativeField.match(/\[([^\]]+)\]/);
-    const context = contextMatch ? contextMatch[1] : null;
-    document.getElementById('native').innerHTML = context
-      ? nativeField.replace(/\[([^\]]+)\]/, '<span id="context">($1)</span>')
-      : nativeField;
-
-    // Reveal Elements
-    document.getElementById('native').style.opacity = 1;
-
-  }, 0);
 </script>

@@ -2,14 +2,21 @@
 
 <div id='backSide'>
   <div id='backStatusBar' class='statusBar'>
-    <div id='reloadButton' onClick='reloadPage()'><span class='reloadSymbol'>&#10227;</span></div>
-    <div id='audioStatus'>&#x1F3A7;</div>
+    <div id='reloadButton' onClick=loadPage()>
+      <span id='reloadSymbol'>&#10227;</span>
+    </div>
+
+    <div id='audioStatus' onclick=playAudio()>
+      <span id='audioSymbol'>&#9654;</span>
+    </div>
   </div>
 
   {{FrontSide}}
 </div>
 
-<div id='mobileAnswer'></br>{{Language-3}}</div>
+<div id='mobileAnswer'>
+  {{Language-3}}
+</div>
 
 {{#Phonology-3}}
   <div id='phonology'>/{{Phonology-3}}/</div>
@@ -17,66 +24,94 @@
 
 {{Image}}
 
-<audio id='audioPlayer' src='{{Audio-3}}'></audio>
-
 
 <script>
-  function genderNumberBack(wordIndex) {
-    const words = stripHTML(`{{Language-3}}`).split('/');
-    const classificationContent = `{{Classification}}`;
-    const mobileAnswerContent = `{{Language-3}}`;
-    const classificationElement = document.getElementById('classification');
-    const mobileAnswerElement = document.getElementById('mobileAnswer');
-    const nativeElement = document.getElementById('nativeElement');
-
-    const genderAndNumber = [
-      '<span style="color: #4E7BFD;">masc.</span> singular',
-      '<span style="color: #FE3473;">fem.</span> singular',
-      '<span style="color: #4E7BFD;">masc.</span> plural',
-      '<span style="color: #FE3473;">fem.</span> plural'
-    ]
-
-    if (classificationContent === 'adjective') {
-      if (words.length === 2) {
-        mobileAnswerElement.innerHTML = words[(wordIndex < 2) ? 0 : 1];
-        classificationElement.innerHTML = '(' + genderAndNumber[wordIndex] + ')';
-      }
-      else if (words.length === 4) {
-        mobileAnswerElement.innerHTML = words[wordIndex];
-        classificationElement.innerHTML = '(' + genderAndNumber[wordIndex] + ')';
-      }
-    }
-    else if (classificationContent === 'noun') {
-      if (words.length === 2) {
-        mobileAnswerElement.innerHTML = words[(wordIndex < 2) ? 0 : 1];
-        classificationElement.innerHTML = '(' + ['singular', 'plural'][(wordIndex < 2) ? 0 : 1] + ')';
-      }
-    }
-
-  }
-
-  function reloadPage() {
-    const newIndex = nextIndex();
-    genderNumberFront(newIndex);
-    genderNumberBack(newIndex);
-  }
-
   setTimeout(() => {
-  
-    // Number & Gender
-    if (stripHTML(`{{Language-3}}`).split('/').length > 1) {
-      let storedIndex;
-      if (Persistence.isAvailable()) {
-        storedIndex = Persistence.getItem();
-        Persistence.clear();
-      }
-      genderNumberBack(storedIndex);
-    }
+
+    // Handle Nominal Agreement
+    if (Persistence.isAvailable()) {
+      const wordIndex = Persistence.getItem('wordIndex');
+      const typed = Persistence.getItem('typed') ?? '';
+      loadPage(wordIndex, typed);
+      Persistence.removeItem('typed');
+    } 
 
     // Reveal Elements
     document.getElementById('classification').style.opacity = 1;
     document.getElementById('mobileAnswer').style.opacity = 1;
+    document.getElementById('audioStatus').style.pointerEvents = 'auto';
+    document.getElementById('typeReview').style.display = 'inline-block';
+    document.getElementById('typeField').style.display = 'none';
 
   }, 0);
+
+
+  // Handle Nominal Agreement
+  // ------------------------
+
+  function loadPage(storedIndex, typed) {
+    const words = stripHTML(`{{Language-3}}`).split('/');
+    const wordIndex = storedIndex ?? nextIndex();
+    handleAgreementFront(wordIndex);
+    handleAgreementBack(wordIndex, words, typed ?? '');
+  }
+
+  function handleAgreementBack(storedIndex, words, typed) {
+    const wordIndex = storedIndex ?? 0;
+    const classification = stripHTML(`{{Classification}}`);
+    const audioSources = stripHTML(`{{Audio-3}}`).split(' ');
+    const nativeElement = document.getElementById('nativeElement');
+    const mobileAnswerElement = document.getElementById('mobileAnswer');
+    const classificationElement = document.getElementById('classification');
+    const typeFieldElement = document.getElementById('typeField');
+    const typeReviewElement = document.getElementById('typeReview');
+
+    const agreementPhrases = [
+      '<span style="color: #4E7BFD;">masc.</span> singular',
+      '<span style="color: #FE3473;">fem.</span> singular',
+      '<span style="color: #4E7BFD;">masc.</span> plural',
+      '<span style="color: #FE3473;">fem.</span> plural'
+    ];
+
+    if (words.length === 1) {
+      setTypeReview(typed, words[0]);
+      setAudio(audioSources[0]);
+    }
+
+    if (classification === 'adjective') {
+      if (words.length === 2) {
+        const correctIndex = wordIndex < 2 ? 0 : 1;
+        mobileAnswerElement.innerHTML = words[correctIndex];
+        classificationElement.innerHTML = '(' + agreementPhrases[wordIndex] + ')';
+        setTypeReview(typed, words[correctIndex]);
+        setAudio(audioSources[correctIndex]);
+      }
+
+      else if (words.length === 4) {
+        classificationElement.innerHTML = '(' + agreementPhrases[wordIndex] + ')';
+        mobileAnswerElement.innerHTML = words[wordIndex];
+        setTypeReview(typed, words[wordIndex]);
+        setAudio(audioSources[wordIndex]);
+      }
+    }
+
+    else if (classification === 'noun') {
+      if (words.length === 2) {
+        const correctIndex = wordIndex % 2;
+        classificationElement.innerHTML = '(' + ['singular', 'plural'][correctIndex] + ')';
+        mobileAnswerElement.innerHTML = words[correctIndex];
+        setTypeReview(typed, words[correctIndex]);
+        setAudio(audioSources[correctIndex]);
+      }
+
+      else if (words.length === 4) {
+        classificationElement.innerHTML = '(' + agreementPhrases[wordIndex] + ')';
+        mobileAnswerElement.innerHTML = words[wordIndex];
+        setTypeReview(typed, words[wordIndex]);
+        setAudio(audioSources[wordIndex]);
+      }
+    }
+    playAudio();
+  }
 
 </script>

@@ -2,124 +2,255 @@
 
 {{#Language-2}}
 
-  <div id='frontStatusBar' class='statusBar'>
-    <div id='reloadButton' onclick='genderNumberFront(nextIndex())'><span class='reloadSymbol'>&#10227;</span></div>
-    <div id='audioStatus'>&#x1F3A7;</div>
+<div id='frontStatusBar' class='statusBar'>
+  <div id='reloadButton' onclick=loadPage()>
+    <span id='reloadSymbol'>&#10227;</span>
   </div>
 
-  <div id='native'>{{Native}}</div>
+  <div id='audioStatus'>
+    <span id='audioSymbol'>&#9654;</span>
+  </div>
+</div>
 
-  {{#Synonyms}}
-    <div id='synonyms'>or {{Synonyms}}</div>
-  {{/Synonyms}}
+<div id='native'>
+  {{Native}}
+</div>
 
-  {{#Classification}}
-    <div id='classification'>({{Classification}})</div>
-  {{/Classification}}
+{{#Synonyms}}
+  <div id='synonyms'>or {{Synonyms}}</div>
+{{/Synonyms}}
 
-  {{#Language-2}}
-    <div class='hintBox'>
-      <span id='hintLabel'>Reveal Hint</span>
-      <span id='hintText'></span>
-    </div>
-  {{/Language-2}}
+{{#Classification}}
+  <div id='classification'>({{Classification}})</div>
+{{/Classification}}
 
-  <div id='typeBox'>{{type:Language-2}}</div>
+{{#Language-2}}
+  <div class='hintBox'>
+    <span id='hintLabel'>Reveal Hint</span>
+    <span id='hintText'></span>
+  </div>
+{{/Language-2}}
 
-  {{Image}}
+<div id='typeBox'>
+  <input id='typeField' type='text'/>
+  <span id='typeReview'></span>
+</div>
+
+{{Image}}
+
+<div id='logger'></div>
 
 
-  <script>
-    // v1.1.8 - https://github.com/SimonLammer/anki-persistence/blob/584396fea9dea0921011671a47a0fdda19265e62/script.js
-    if(void 0===window.Persistence){var e="github.com/SimonLammer/anki-persistence/",t="_default";if(window.Persistence_sessionStorage=function(){var i=!1;try{"object"==typeof window.sessionStorage&&(i=!0,this.clear=function(){for(var t=0;t<sessionStorage.length;t++){var i=sessionStorage.key(t);0==i.indexOf(e)&&(sessionStorage.removeItem(i),t--)}},this.setItem=function(i,n){void 0==n&&(n=i,i=t),sessionStorage.setItem(e+i,JSON.stringify(n))},this.getItem=function(i){return void 0==i&&(i=t),JSON.parse(sessionStorage.getItem(e+i))},this.removeItem=function(i){void 0==i&&(i=t),sessionStorage.removeItem(e+i)},this.getAllKeys=function(){for(var t=[],i=Object.keys(sessionStorage),n=0;n<i.length;n++){var s=i[n];0==s.indexOf(e)&&t.push(s.substring(e.length,s.length))}return t.sort()})}catch(n){}this.isAvailable=function(){return i}},window.Persistence_windowKey=function(i){var n=window[i],s=!1;"object"==typeof n&&(s=!0,this.clear=function(){n[e]={}},this.setItem=function(i,s){void 0==s&&(s=i,i=t),n[e][i]=s},this.getItem=function(i){return void 0==i&&(i=t),void 0==n[e][i]?null:n[e][i]},this.removeItem=function(i){void 0==i&&(i=t),delete n[e][i]},this.getAllKeys=function(){return Object.keys(n[e])},void 0==n[e]&&this.clear()),this.isAvailable=function(){return s}},window.Persistence=new Persistence_sessionStorage,Persistence.isAvailable()||(window.Persistence=new Persistence_windowKey("py")),!Persistence.isAvailable()){var i=window.location.toString().indexOf("title"),n=window.location.toString().indexOf("main",i);i>0&&n>0&&n-i<10&&(window.Persistence=new Persistence_windowKey("qt"))}}
-  </script>
+<script>
+  // Persistence (v1.1.8 - https://github.com/SimonLammer/anki-persistence/blob/584396fea9dea0921011671a47a0fdda19265e62/script.js)
+  if(void 0===window.Persistence){var e="github.com/SimonLammer/anki-persistence/",t="_default";if(window.Persistence_sessionStorage=function(){var i=!1;try{"object"==typeof window.sessionStorage&&(i=!0,this.clear=function(){for(var t=0;t<sessionStorage.length;t++){var i=sessionStorage.key(t);0==i.indexOf(e)&&(sessionStorage.removeItem(i),t--)}},this.setItem=function(i,n){void 0==n&&(n=i,i=t),sessionStorage.setItem(e+i,JSON.stringify(n))},this.getItem=function(i){return void 0==i&&(i=t),JSON.parse(sessionStorage.getItem(e+i))},this.removeItem=function(i){void 0==i&&(i=t),sessionStorage.removeItem(e+i)},this.getAllKeys=function(){for(var t=[],i=Object.keys(sessionStorage),n=0;n<i.length;n++){var s=i[n];0==s.indexOf(e)&&t.push(s.substring(e.length,s.length))}return t.sort()})}catch(n){}this.isAvailable=function(){return i}},window.Persistence_windowKey=function(i){var n=window[i],s=!1;"object"==typeof n&&(s=!0,this.clear=function(){n[e]={}},this.setItem=function(i,s){void 0==s&&(s=i,i=t),n[e][i]=s},this.getItem=function(i){return void 0==i&&(i=t),void 0==n[e][i]?null:n[e][i]},this.removeItem=function(i){void 0==i&&(i=t),delete n[e][i]},this.getAllKeys=function(){return Object.keys(n[e])},void 0==n[e]&&this.clear()),this.isAvailable=function(){return s}},window.Persistence=new Persistence_sessionStorage,Persistence.isAvailable()||(window.Persistence=new Persistence_windowKey("py")),!Persistence.isAvailable()){var i=window.location.toString().indexOf("title"),n=window.location.toString().indexOf("main",i);i>0&&n>0&&n-i<10&&(window.Persistence=new Persistence_windowKey("qt"))}}
+</script>
 
-  <script>
+<script>
+  setTimeout(() => {
 
-    function nextIndex() {
-      let newIndex = 0;
-      if (Persistence.isAvailable()) {
-        newIndex = Persistence.getItem() + 1;
-        Persistence.setItem(newIndex)
-      }
-      return newIndex;
+    // Handle Nominal Agreement
+    if (Persistence.isAvailable() && !document.getElementById('backSide')) {
+      Persistence.setItem('wordIndex', Math.floor(Math.random() * 4));
+      loadPage(Persistence.getItem('wordIndex'));
     }
 
-    function stripHTML(input) {
-      const tempElement = document.createElement('div');
-      tempElement.innerHTML = input;
-      return tempElement.innerText || tempElement.textContent || '';
-    }
-  
-    function genderNumberFront(wordIndex) {
-      const words = stripHTML(`{{Language-2}}`).split('/');
-      const classificationContent = `{{Classification}}`;
-      const classificationElement = document.getElementById('classification');
+    // Set Properties
+    setHint();
+    setContext();
+    setAudioStatus();
+    setReloadStatus();
 
-      const genderAndNumber = [
-        '<span style="color: #4E7BFD;">masc.</span> singular',
-        '<span style="color: #FE3473;">fem.</span> singular',
-        '<span style="color: #4E7BFD;">masc.</span> plural',
-        '<span style="color: #FE3473;">fem.</span> plural'
-      ]
+    typeFieldElement = document.getElementById('typeField');
+    typeFieldElement.focus();
 
-      if (classificationContent === 'adjective') {
-        if (words.length === 2 || words.length === 4) {
-          classificationElement.innerHTML = '(' + genderAndNumber[wordIndex % 4] + ')';
+    // Handle Typed Answer
+    typeField.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        if (Persistence.isAvailable()) {
+          const typed = document.getElementById('typeField').value.trim();
+          Persistence.setItem('typed', typed);
+          pycmd('ans');
         }
       }
+    });
 
-      else if (classificationContent === 'noun') {
-        if (words.length === 2) {
-          const number = ['singular', 'plural'][wordIndex % 2];
-          classificationElement.innerHTML = '(' + number + ')';
-        }
+    // Reveal elements
+    document.getElementById('native').style.opacity = 1;
+    document.getElementById('classification').style.opacity = 1;
+
+  }, 0);
+
+
+  // Handle Nominal Agreement
+  // ------------------------
+
+  function loadPage(wordIndex) {
+    const newIndex = wordIndex ?? nextIndex();
+    handleAgreementFront(newIndex);
+  }
+
+  function handleAgreementFront(storedIndex) {
+
+    const wordIndex = storedIndex ?? 0;
+    const words = stripHTML(`{{Language-2}}`).split('/');
+    const classification = stripHTML(`{{Classification}}`);
+    const audioSources = stripHTML(`{{Audio-2}}`).split(' ');
+    const classificationElement = document.getElementById('classification');
+
+    const agreementPhrases = [
+      '<span style="color: #4E7BFD;">masc.</span> singular',
+      '<span style="color: #FE3473;">fem.</span> singular',
+      '<span style="color: #4E7BFD;">masc.</span> plural',
+      '<span style="color: #FE3473;">fem.</span> plural'
+    ]
+
+    if (classification === 'adjective') {
+      if (words.length === 2) {
+        classificationElement.innerHTML = '(' + agreementPhrases[wordIndex] + ')';
+      }
+      else if (words.length === 4) {
+        classificationElement.innerHTML = '(' + agreementPhrases[wordIndex] + ')';
       }
     }
 
-    function generateHint(comparables) {
-      const base = comparables[0];
-      for (let i = 0; i < base.length; i++) {
-        if (!(
-          comparables[0].substring(i, i + 1) === comparables[1].substring(i, i + 1) ||
-          comparables[0].substring(i, i + 1) === comparables[2].substring(i, i + 1)
-        )) {
-          return base.substring(0, i + 1);
-        }
-      } return base.substring(0, base.length)
+    else if (classification === 'noun') {
+      if (words.length === 2) {
+        classificationElement.innerHTML = '(' + ['singular', 'plural'][wordIndex % 2] + ')';
+      }
+      else if (words.length === 4) {
+        classificationElement.innerHTML = '(' + agreementPhrases[wordIndex] + ')';
+      }
+    }
+  }
+
+
+  // Set Properties
+  // --------------
+
+  function setHint() {
+    let hint;
+    const base = stripHTML(`{{Language-2}}`);
+    const comparable1 = stripHTML(`{{Language-3}}`);
+    const comparable2 = stripHTML(`{{Language-1}}`);
+    const hintElement = document.getElementById('hintText');
+
+    for (let i = 0; i < base.length; i++) {
+      if (!(
+        base.substring(i, i + 1) === comparable1.substring(i, i + 1) ||
+        base.substring(i, i + 1) === comparable2.substring(i, i + 1)
+      )) {
+        hint = base.substring(0, i + 1);
+        break;
+      }
     }
 
-    setTimeout(() => {
+    if (hintElement) {
+      hintElement.innerHTML = (hint ?? base.substring(0, base.length)) + '...';
+    }
+  }
 
-      // Gender & Number
-      if (stripHTML(`{{Language-2}}`).split('/').length > 1) {
-        if (!document.getElementById('backSide')) genderNumberFront(Math.floor(Math.random() * 4));
-        document.getElementById('reloadButton').classList.add('active');
+  function setContext() {
+    const raw = stripHTML(`{{Native}}`);
+    const contextRegex = /\[([^\]]+)\]/g;
+    const formatedText = raw.replace(contextRegex, '<span id="context">($1)</span>');
+    document.getElementById('native').innerHTML = formatedText;
+  }
+
+  function setAudioStatus() {
+    const words = stripHTML(`{{Language-2}}`).split('/');
+    const audioSources = stripHTML(`{{Audio-2}}`).split(' ');
+    if (words.length === audioSources.length && words.length != null) {
+      document.getElementById('audioStatus').classList.add('active');
+    }
+  }
+
+  function setReloadStatus() {
+    if (stripHTML(`{{Language-2}}`).split('/').length > 1) {
+      document.getElementById('reloadButton').classList.add('active');
+    }
+  }
+
+  function setTypeReview(typed, correct) {
+    document.getElementById('typeReview').innerHTML = typed
+    ? compareTypedAnswer(typed.trim(), correct.trim())
+    : `<span class='typeGood'>${correct}</span>`;
+  }
+
+
+  // Helper Functions
+  // ----------------
+
+  function log(input) {
+    const logger = document.getElementById('logger');
+    logger.style.display = 'block';
+    logger.innerHTML += input + '</br>';
+  }
+
+  function logRaw(input) {
+    const logger = document.getElementById('logger');
+    logger.style.display = 'block';
+    logger.innerText += input + ' ';
+  }
+
+  function stripHTML(input) {
+    const tempElement = document.createElement('div');
+    tempElement.innerHTML = input;
+    let textContent = tempElement.innerText || tempElement.textContent || '';
+    return textContent.trim();
+  }
+
+  function nextIndex() {
+    let newIndex;
+    if (Persistence.isAvailable()) {
+      newIndex = (Persistence.getItem('wordIndex') + 1) % 4;
+      Persistence.setItem('wordIndex', newIndex)
+    }
+    return newIndex;
+  }
+
+  function setAudio(audioSource) {
+    if (Persistence.isAvailable()) {
+      Persistence.setItem('audioSource', audioSource ?? '');
+    }
+  }
+
+  function getAudio() {
+    if (Persistence.isAvailable()) {
+      return Persistence.getItem('audioSource');
+    }
+  }
+
+  function playAudio() {
+    const audioPlayer = new Audio();
+    audioPlayer.src = getAudio();
+    audioPlayer.play();
+  }
+
+  function compareTypedAnswer(typed, correct) {
+    let result = '';
+    let formattedCorrect = '';
+    let correctIndex = 0;
+    for (let i = 0; i < typed.length; i++) {
+      if (correctIndex < correct.length && typed[i] === correct[correctIndex]) {
+        result += `<span class='typeGood'>${typed[i]}</span>`;
+        formattedCorrect += `<span class='typeGood'>${correct[correctIndex]}</span>`;
+        correctIndex++;
+      } else if (correctIndex < correct.length) {
+        result += `<span class='typeBad'>${typed[i]}</span>`;
+        formattedCorrect += `<span class='typeMissed'>${correct[correctIndex]}</span>`;
+        correctIndex++;
+      } else {
+        result += `<span class='typeBad'>${typed[i]}</span>`;
       }
+    }
+    for (let i = correctIndex; i < correct.length; i++) {
+      formattedCorrect += `<span class='typeMissed'>${correct[i]}</span>`;
+    }
+    return result +  `</br>↓</br>` + formattedCorrect;
+}
 
-      // Audio Status
-      const isAudioPresent = `{{#Audio-2}}audio{{/Audio-2}}` !== '';
-      if (isAudioPresent) document.getElementById('audioStatus').classList.add('active');
+</script>
 
-      // Context
-      const nativeField = `{{Native}}`;
-      const contextMatch = nativeField.match(/\[([^\]]+)\]/);
-      const context = contextMatch ? contextMatch[1] : null;
-      document.getElementById('native').innerHTML = context
-        ? nativeField.replace(/\[([^\]]+)\]/, '<span id="context">($1)</span>')
-        : nativeField;
-
-      // Hint
-      if ( document.getElementById('hintText') !== null ) {
-        hint = generateHint([stripHTML(`{{Language-2}}`), stripHTML(`{{Language-3}}`), stripHTML(`{{Language-1}}`)]); 
-        document.getElementById('hintText').innerHTML = hint + '...';
-      }
-
-      // Reveal elements
-      document.getElementById('native').style.opacity = 1;
-      document.getElementById('classification').style.opacity = 1;
-
-    }, 0);
-  </script>
 
 {{/Language-2}}

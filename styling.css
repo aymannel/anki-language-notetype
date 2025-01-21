@@ -48,11 +48,24 @@ body {
 
 /* Type Box */
 
-#typeans {
+#typeReview {
+  width: 100%;
+  border: 0px;
+  display: none;
+  font-size: 20px;
+  font-family: inherit;
+  font-weight: bold;
+  color: #434343 !important;
+  background-color: #FFF !important;
+}
+
+#typeField {
+  width: 100%;
   border: 0px;
   font-size: 20px;
   font-family: inherit;
   font-weight: bold;
+  display: inline-block;
   color: #434343 !important;
   background-color: #FFF !important;
 }
@@ -69,7 +82,7 @@ body {
 }
 
 .mobile #typeBox {
-	display: none;
+	display: none !important;
 }
 
 .typeGood {
@@ -102,7 +115,7 @@ input:focus, textarea:focus, select:focus { outline: none; }
 }
 
 .mobile #mobileAnswer {
-	display: block;
+	display: block !important;
 }
 
 
@@ -154,31 +167,45 @@ img {
 
 #backSide #frontStatusBar {
 	display: None;
-  }
+}
 
 
 /* Audio Status */
 
 #audioStatus {
-	color: white;
-	display: flex;
-	justify-content: center;
-	align-items: center;
 	width: 40px;
 	height: 40px;
+	opacity: 0.5;
+	display: flex;
+	cursor: pointer;
+	user-select: none;
 	border-radius: 50%;
-	font-size: 24px;
+	align-items: center;
+	pointer-events: none;
+	justify-content: center;
+	background-color: #606060;
 	box-shadow: 5px 3px #252525;
 	transition: transform 0.2s ease;
-	user-select: none;
-	background-color: #606060;
-	opacity: 0.5;
-    color: white;
+}
+
+#audioStatus:hover {
+	transform: scale(1.1);
+}
+
+#audioStatus:active {
+	transform: scale(0.95);
+	box-shadow: 2px 2px #666;
 }
 
 #audioStatus.active {
 	background-color: #40884a;
 	opacity: 1;
+}
+
+#audioSymbol {
+    color: white;
+	font-size: 30px;
+	transform: translate(2px, -2px);
 }
 
 
@@ -200,12 +227,6 @@ img {
 	transition: transform 0.2s ease;
 }
 
-.reloadSymbol {
-    color: white;
-	font-size: 40px;
-	transform: translate(2px, -3px);
-}
-
 #reloadButton:hover {
 	transform: scale(1.1);
 }
@@ -216,8 +237,15 @@ img {
 }
 
 #reloadButton.active {
-	opacity: 1;
 	pointer-events: auto;
+	opacity: 1;
+}
+
+#reloadSymbol {
+    color: white;
+	font-size: 40px;
+	font-weight: bolder;
+	transform: translate(2px, -3px);
 }
 
 

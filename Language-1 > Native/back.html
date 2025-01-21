@@ -2,10 +2,13 @@
 
 <div id='backSide'>
   <div id='backStatusBar' class='statusBar'>
-    <div id='reloadButton' onClick='reloadPage()'>
-      <span class='reloadSymbol'>&#10227;</span>
+    <div id='reloadButton' onClick=loadPage()>
+      <span id='reloadSymbol'>&#10227;</span>
     </div>
-    <div id='audioStatus'>&#x1F3A7;</div>
+
+    <div id='audioStatus' onclick=playAudio()>
+      <span id='audioSymbol'>&#9654;</span>
+    </div>
   </div>
 
   {{FrontSide}}
@@ -24,50 +27,41 @@
 {{Image}}
 
 
-<!-- Scripts -->
-
 <script>
-
   setTimeout(() => {
 
-    // Nominal Agreement
+    // Handle Nominal Agreement
     if (Persistence.isAvailable()) {
-      reloadPage(Persistence.getItem());
-      Persistence.clear();
+      loadPage(Persistence.getItem('wordIndex'));
+      // Persistence.removeItem('wordIndex');
     }
 
-    // Context
-    document.getElementById('native').innerHTML = formatContext(`{{Native}}`);
+    // Set Properties
+    setContext();
 
     // Reveal Elements
     document.getElementById('native').style.opacity = 1;
 
   }, 0);
 
-  function reloadPage(wordIndex) {
 
-    // Initialise Constants
+  // Handle Nominal Agreement
+  // ------------------------
+
+  function loadPage(wordIndex) {
     const newIndex = wordIndex ?? nextIndex();
+    handleAgreementFront(newIndex);
+    handleAgreementBack(newIndex);
+    if (wordIndex == null) playAudio();
+  }
+
+  function handleAgreementBack(storedIndex) {
     const language = stripHTML(`{{Language-1}}`);
     const classification = stripHTML(`{{Classification}}`);
-    const audioSources = wordIndex != null ? null : stripHTML(`{{Audio-1}}`).split(' ');
-
-    // Handle Agreement
-    handleAgreementFront(language, classification, audioSources, newIndex);
-    handleAgreementBack(language, classification, newIndex);
-
-  }
-
-  function formatContext(text) {
-    const contextRegex = /\[([^\]]+)\]/g;
-    return stripHTML(text).replace(contextRegex, '<span id="context">($1)</span>');
-  }
-
-  // function handleAgreementBack(wordIndex) {
-  function handleAgreementBack(language, classification, storedIndex) {
 
     const words = language.split('/');
     const wordIndex = storedIndex ?? 0;
+
     const languageElement = document.getElementById('language');
     const classificationElement = document.getElementById('classification');
 
@@ -104,7 +98,6 @@
         classificationElement.innerHTML = '(' + agreementPhrases[wordIndex] + ')';
       }
     }
-
   }
 
 </script>
