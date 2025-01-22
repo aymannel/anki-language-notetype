@@ -63,8 +63,8 @@ Cards are generated from each **Language-x** field paired with the **Native** fi
 - **Language-2 -> Native**
 - **Language-3 -> Native**
 
-![](figures/francese.png)
-![](figures/francese_back.png)
+![s](figures/francese.png)
+![as](figures/francese_back.png)
 
 
 ### Native -> Language
@@ -76,7 +76,7 @@ These cards reverse the direction of recall, prompting learners with the **Nativ
 - **Native -> Language-3**
 
 
-![](figures/image2.png)
+![sas](figures/image2.png)
 
 ---
 
@@ -89,7 +89,7 @@ These cards reverse the direction of recall, prompting learners with the **Nativ
 - **Feedback Highlights**:  
     The system highlights incorrect letters in red and correct letters in green.
 
-![](figures/finnish.png)
+![as](figures/finnish.png)
 
 ---
 
