@@ -27,8 +27,6 @@ A versatile and feature-rich note type designed for language learners, leveragin
 
 This note type is optimized for language learners studying multiple languages simultaneously. It includes customizable fields, supports multiple card types, and integrates interactive features to provide a comprehensive learning experience.
 
-[IMAGE OF (OVERVIEW OF NOTE TYPE WITH SAMPLE CARD FRONT AND BACK)]
-
 ---
 
 ## Fields
@@ -65,7 +63,9 @@ Cards are generated from each **Language-x** field paired with the **Native** fi
 - **Language-2 -> Native**
 - **Language-3 -> Native**
 
-[IMAGE OF (FRONT OF LANGUAGE -> NATIVE CARD)]
+![](figures/francese.png)
+![](figures/francese_back.png)
+
 
 ### Native -> Language
 
@@ -75,7 +75,8 @@ These cards reverse the direction of recall, prompting learners with the **Nativ
 - **Native -> Language-2**
 - **Native -> Language-3**
 
-[IMAGE OF (FRONT AND BACK OF NATIVE -> LANGUAGE CARD)]
+
+![](figures/image2.png)
 
 ---
 
@@ -88,7 +89,7 @@ These cards reverse the direction of recall, prompting learners with the **Nativ
 - **Feedback Highlights**:  
     The system highlights incorrect letters in red and correct letters in green.
 
-[IMAGE OF (USER TYPING INPUT WITH FEEDBACK HIGHLIGHTING)]
+![](figures/finnish.png)
 
 ---
 
